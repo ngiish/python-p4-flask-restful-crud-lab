@@ -46,6 +46,29 @@ class PlantByID(Resource):
     def get(self, id):
         plant = Plant.query.filter_by(id=id).first().to_dict()
         return make_response(jsonify(plant), 200)
+    
+    def patch(self, id):
+        plant = Plant.query.get_or_404(id)
+        data = request.get_json()
+
+        # Update the plant attributes based on the provided data
+        if 'is_in_stock' in data:
+            plant.is_in_stock = data['is_in_stock']
+
+        db.session.commit()
+
+        # Return the updated plant in the response
+        return make_response(jsonify(plant.to_dict()), 200)
+
+    def delete(self, id):
+        plant = Plant.query.get_or_404(id)
+
+        # Delete the plant from the database
+        db.session.delete(plant)
+        db.session.commit()
+
+        # Return a response with status code 204 (No Content)
+        return '', 204
 
 
 api.add_resource(PlantByID, '/plants/<int:id>')
